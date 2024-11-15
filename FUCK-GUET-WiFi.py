@@ -11,6 +11,14 @@ def get_macaddress():
     for nw in wmi.WMI().Win32_NetworkAdapterConfiguration(IPEnabled=True):
         return nw.MACAddress.replace(":", "").lower()
 
+ if os.path.exists('info.json'):
+        with open('info.json', 'r') as f:
+            try:
+                # 读取 JSON 数据
+                data = json.load(f)
+                username = data.get('username')
+                pwd = data.get('pwd')
+
 
 print("请连接至GUET-WIFI,按回车继续...", end='')
 
