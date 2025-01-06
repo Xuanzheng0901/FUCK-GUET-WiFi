@@ -78,7 +78,8 @@ try:
             print("已将账户密码加密存入程序目录下的info.json文件,下次认证无需输入")
     elif "ldap auth error" in content:  # 如果密码错误,删除账户文件,以防下次再使用错误的账户密码
         os.remove('info.json')
-except:  # get超时3s后捕获
-    print("连接失败!")
+except Exception as ex:  # get超时3s后捕获
+    print(ex)
+    print("连接失败,可能是请求频率过高,请稍后再试...")
 
 os.system("pause")
