@@ -15,7 +15,7 @@ def get_wifi_info():
     for line in output:
         if "接口" in line:
             continue
-        elif ':' in line:
+        if ':' in line:
             key, value = line.split(':', 1)
             tmp_list[key.strip()] = value.strip()
     return tmp_list
@@ -27,7 +27,7 @@ if "SSID" not in wifi_info:
     print("WiFi未连接,正在尝试连接...")
     try:
         os.system("netsh WLAN connect GUET-WiFi")
-        time.sleep(2)  # 等待wifi连接
+        time.sleep(3)  # 等待wifi连接
     except:
         print("连接失败!请手动连接或稍后再试。")
         exit(0)
@@ -35,8 +35,9 @@ elif wifi_info["SSID"] != "GUET-WiFi":
     print("未正确连接至校园网,正在尝试连接...")
     try:
         os.system("netsh WLAN disconnect")
-        time.sleep(2)
+        time.sleep(1)
         os.system("netsh WLAN connect GUET-WiFi")
+        time.sleep(3)
     except:
         print("连接失败!请手动连接或稍后再试。")
         exit(0)
@@ -50,6 +51,8 @@ if os.path.exists('info.json'):  # 文件存储
         f.close()
 else:  # 找不到文件时需用户输入
     user_name = str(input('首次使用,请输入智慧校园账号/学号:'))
+    while len(user_name) != 10:
+        user_name = str(input('输入格式不正确!请重新输入:'))
     try:
         pwd = str(getpass.getpass('请输入密码:'))
     except:
