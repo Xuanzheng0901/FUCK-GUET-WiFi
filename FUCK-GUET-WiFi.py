@@ -12,8 +12,8 @@ import sys
 def get_wifi_info():
     output = subprocess.run(["netsh", "WLAN", "show", "interfaces"],
                             capture_output=True,
-                            text=True, shell=True)
-    output = output.stdout.replace(" ", "").split()
+                            text=False, shell=True, )
+    output = output.stdout.decode("utf-8").replace(" ", "").split()
     tmp_list = {}
     for line in output:
         if "接口" in line:
@@ -90,7 +90,7 @@ headers = {
 }
 
 try:
-    response = get(url, headers=headers, timeout=2)  # 发送get请求
+    response = get(url, headers=headers, timeout=3)  # 发送get请求
     content = json.loads(re.search(r'\{.*}', response.text).group())["msg"]
     print(response.status_code, content)
 
@@ -105,7 +105,8 @@ try:
         # 如果密码错误且账户文件存在,删除账户文件,以防下次再使用错误的账户密码
         os.remove('info.json')
 
-except:  # get超时3s后捕获
+except Exception as e:  # get超时3s后捕获
+    print(e)
     print("连接失败,可能是请求频率过高,请稍后再试...")
     os.system("pause")
     sys.exit(0)
