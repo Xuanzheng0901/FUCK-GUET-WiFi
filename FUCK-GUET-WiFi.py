@@ -12,8 +12,8 @@ import sys
 def get_wifi_info():
     output = subprocess.run(["netsh", "WLAN", "show", "interfaces"],
                             capture_output=True,
-                            text=False, shell=True, )
-    output = output.stdout.decode("utf-8").replace(" ", "").split()
+                            text=False, shell=False)
+    output = output.stdout.decode("gb18030").replace(" ", "").split()
     tmp_list = {}
     for line in output:
         if "接口" in line:
@@ -25,12 +25,9 @@ def get_wifi_info():
 
 
 connect_retry_times = 0
-
 wifi_info = get_wifi_info()
-mac = wifi_info['物理地址']
-
 while connect_retry_times <= 3:
-    if "SSID" not in wifi_info:
+    if "SSID" not in wifi_info:  # 如果wifi未连接
         print("WiFi未连接,正在尝试连接...")
         try:
             subprocess.run(["netsh", "WLAN", "connect", "GUET-WiFi"],
@@ -40,7 +37,7 @@ while connect_retry_times <= 3:
             print("连接失败!请手动连接或稍后再试。")
             os.system("pause")
             sys.exit(0)
-    elif wifi_info["SSID"] != "GUET-WiFi":
+    elif wifi_info["SSID"] != "GUET-WiFi":  # 如果连接的wifi不是校园网
         print("未正确连接至校园网,正在尝试连接...")
         try:
             subprocess.run(["netsh", "WLAN", "disconnect"],
@@ -58,7 +55,7 @@ while connect_retry_times <= 3:
     wifi_info = get_wifi_info()  # 重新尝试获取wifi信息
     connect_retry_times += 1
 
-if "SSID" not in wifi_info or wifi_info["SSID"] != "GUET-WiFi":
+if "SSID" not in wifi_info or wifi_info["SSID"] != "GUET-WiFi" or connect_retry_times > 3:
     print("wifi连接异常!请检查wifi连接、确保在校园网覆盖范围内或稍后再试")
     os.system("pause")
     sys.exit(0)
@@ -81,7 +78,7 @@ else:  # 找不到文件时需用户输入
 
 # 生成登录url、header
 url = f"http://10.0.1.5:801/eportal/portal/login?user_account=%2C0%2C{user_name}\
-        &user_password={pwd}&wlan_user_mac={mac}&wlan_ac_name=HJ-BRAS-ME60-01"
+        &user_password={pwd}&wlan_user_mac={wifi_info['物理地址']}&wlan_ac_name=HJ-BRAS-ME60-01"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
     (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
